@@ -1,20 +1,20 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { nanoid } from 'nanoid';
 import { Container } from './Container.styled'
 import ContactForm from 'components/ContactForm';
 import Filter from 'components/Filter';
 import ContactList from 'components/ContactList';
 
-class App extends Component {
-  state = {
-    contacts: [
+const App = () => {
+ 
+   const [contacts, setContacts] = useState ([
       { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
       { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
       { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-  };
+   ]);
+  const [filter, setFilter] = useState(''),
+  //------------------------------------------   
 // При первой загрузке приложения - стадия Монтирования
   componentDidMount() {
     const contacts = localStorage.getItem('contacts');
@@ -34,7 +34,7 @@ class App extends Component {
     }
   }
 
-  addContact = ({ name, number }) => {
+ const addContact = ({ name, number }) => {
     const newContact = {
       id: nanoid(),
       name,
@@ -51,58 +51,43 @@ class App extends Component {
           contacts: [newContact, ...contacts],
         }));
   };
-
-  deleteContact = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
-  };
-
-  filterInputHandler = event => {
-    this.setState({
-      filter: event.currentTarget.value,
-    });
-  };
-
-  filterContactsOnChange = () => {
-    const { contacts, filter } = this.state;
-    const capitalFilter = filter.toUpperCase();
-    return contacts.filter(contact =>
-      contact.name.toUpperCase().includes(capitalFilter)
+//************************************* */
+ const deleteContact = id => 
+   setContacts(() => contacts.filter(contact => contact.id !== id));
+    
+  const filterInputHandler = event => setFilter(event.currentTarget.value);
+    
+ const filterContactsOnChange = () => 
+    contacts.filter(contact =>
+      contact.name.toUpperCase().includes(filter.toUpperCase())
     );
-  };
-
-  sortContactList = () => {
-    return this.filterContactsOnChange().sort(
-      (firstContactName, secondContactName) =>
+  
+ const sortContactList = () => 
+    filterContactsOnChange().sort((firstContactName, secondContactName) =>
         firstContactName.name.localeCompare(secondContactName.name)
     );
-  };
-
-  render() {
-    const filteredList = this.sortContactList();
-
+  
     return (
       <>
         <section >
           <Container >
             <h1>Phonebook</h1>
-            <ContactForm onSubmit={this.addContact} />
+            <ContactForm onSubmit={addContact} />
             <h2>Contacts</h2>
             <Filter
-              value={this.state.filter}
-              onChange={this.filterInputHandler}
+              value={filter}
+              onChange={filterInputHandler}
             />
             <ContactList
-              contacts={filteredList}
-              deleteOnClick={this.deleteContact}
+              contacts={sortContactList}
+              deleteOnClick={deleteContact}
             />
           </Container>
           </section>
       </>
     );
   }
-}
+
 
 export default App;
 
